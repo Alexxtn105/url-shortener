@@ -5,6 +5,7 @@ package sqlite
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"url-shortener/internal/storage"
 
@@ -59,7 +60,7 @@ func (s *Storage) SaveURL(urlToSave string, alias string) (int64, error) {
 	}
 
 	//выполняем запрос
-	res, err := s.db.Exec(urlToSave, alias)
+	res, err := stmt.Exec(urlToSave, alias)
 	if err != nil {
 		// Здесь мы приводим полученную ошибку ко внутреннему типу библиотеки sqlite3,
 		// чтобы посмотреть, не является ли эта ошибка sqlite3.ErrConstraintUnique.
@@ -67,6 +68,9 @@ func (s *Storage) SaveURL(urlToSave string, alias string) (int64, error) {
 		if sqliteErr, ok := err.(sqlite3.Error); ok && sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
 			return 0, fmt.Errorf("%s: %w", op, storage.ErrURLExists)
 		}
+
+		var e sqlite3.Error
+		fmt.Println(e)
 
 		return 0, fmt.Errorf("%s: execute statement: %w", op, err)
 	}
@@ -80,6 +84,47 @@ func (s *Storage) SaveURL(urlToSave string, alias string) (int64, error) {
 	return id, nil
 }
 
+// GetURL - получить ссылку по ее алиасу
 func (s *Storage) GetURL(alias string) (string, error) {
 	const op = "storage.sqlite.GetURL"
+
+	// Подготавливаем запрос (проверка корректности синтаксиса)
+	stmt, err := s.db.Prepare("SELECT url FROM url WHERe alias = ?")
+	if err != nil {
+		return "", fmt.Errorf("%s: prepare statement: %w", op, err)
+	}
+
+	var resURL string
+
+	err = stmt.QueryRow(alias).Scan(&resURL) //в параметрах используем указатель, чтобы получить результаты
+
+	//если строки не найдено - возвращаем пустую строку
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", storage.ErrURLNotFound
+	}
+
+	if err != nil {
+		return "", fmt.Errorf("%s: execute statement: %w", op, err)
+	}
+
+	return resURL, nil
+}
+
+// Удалить запись из БД по алиасу
+func (s *Storage) DeleteURL(alias string) error {
+	const op = "storage.sqlite.DeleteURL"
+
+	// Подготавливаем запрос (проверка корректности синтаксиса)
+	stmt, err := s.db.Prepare("DELETE FROM url WHERe alias = ?")
+	if err != nil {
+		return fmt.Errorf("%s: prepare statement: %w", op, err)
+	}
+
+	//выполняем запрос
+	_, err = stmt.Exec(alias)
+	if err != nil {
+		return fmt.Errorf("%s: execute statement: %w", op, err)
+	}
+
+	return nil
 }

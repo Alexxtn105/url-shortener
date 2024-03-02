@@ -7,6 +7,11 @@ import (
 	"log/slog"
 	"os"
 	"url-shortener/internal/config"
+	"url-shortener/internal/lib/logger/sl"
+	"url-shortener/internal/storage/sqlite"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 const (
@@ -47,6 +52,31 @@ func main() {
 
 	log.Info("initializing server", slog.String("address", cfg.Address)) // Помимо сообщения выведем параметр с адресом
 	log.Debug("logger debug mode enabled")
+
+	//создаем объект Storage
+	storage, err := sqlite.NewStorage(cfg.StoragePath)
+	if err != nil {
+		log.Error("failed to initialize storage", sl.Err(err))
+	}
+
+	log.Info("storage created")
+	fmt.Println(storage)
+
+	//----------------------создаем http-сервер
+
+	//создаем объект роутера
+	router := chi.NewRouter()
+
+	router.Use(middleware.RequestID) // Добавляет request_id в каждый запрос, для трейсинга
+	router.Use(middleware.Logger)    // Логирование всех запросов. Желательно написать собственный
+	router.Use(middleware.Recoverer) // Если где-то внутри сервера (обработчика запроса) произойдет паника, приложение не должно упасть
+	router.Use(middleware.URLFormat) // Парсер URLов поступающих запросов
+
+	// По умолчанию middleware.Logger использует свой собственный внутренний логгер,
+	// который желательно переопределить, чтобы использовался наш,
+	// иначе могут возникнуть проблемы — например, со сбором логов.
+	// Либо можно написать собственный middleware для логирования запросов. Так и сделаем
+
 }
 
 // setupLogger создает логгер в зависимости от окружения с разными параметрами — TextHandler / JSONHandler и уровень LevelDebug / LevelInfo
