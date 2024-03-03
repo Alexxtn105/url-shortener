@@ -94,16 +94,20 @@ func main() {
 
 	// РАЗОБРАТЬСЯ!!!!
 	//--------------------------------------------------------------------------------
-	router.Post("/", save.New(log, storage))
+	//router.Post("/", save.New(log, storage))
 
-	// router.Route("/url", func(r chi.Router) {
-	// 	r.Use(middleware.BasicAuth("url-shortener", map[string]string{
-	// 		cfg.HTTPServer.User: cfg.HTTPServer.Password,
-	// 	}))
+	// Все пути этого роутера будут начинаться с префикса `/url`
+	router.Route("/url", func(r chi.Router) {
+		// Подключаем авторизацию
+		r.Use(middleware.BasicAuth("url-shortener", map[string]string{
+			// Передаем в middleware креды
+			cfg.HTTPServer.User: cfg.HTTPServer.Password,
+			// Если у вас более одного пользователя,
+			// то можете добавить остальные пары по аналогии.
+		}))
 
-	// 	r.Post("/", save.New(log, storage))
-	// 	// TODO: add DELETE /url/{id}
-	// })
+		r.Post("/", save.New(log, storage))
+	})
 
 	// Подключаем редирект-хендлер.
 	// Здесь формируем путь для обращения и именуем его параметр — {alias}.
@@ -152,6 +156,8 @@ func main() {
 	}
 
 	// TODO: close storage
+	//...
+
 	log.Info("server stopped")
 }
 
@@ -166,7 +172,26 @@ func setupLogger(env string) *slog.Logger {
 		log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	case envProd:
 		log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	default: // If env config is invalid, set prod settings by default due to security
+		log = slog.New(
+			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
+		)
+
 	}
 
 	return log
 }
+
+/*
+func setupPrettySlog() *slog.Logger {
+	opts := slogpretty.PrettyHandlerOptions{
+		SlogOpts: &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		},
+	}
+
+	handler := opts.NewPrettyHandler(os.Stdout)
+
+	return slog.New(handler)
+}
+*/

@@ -35,3 +35,18 @@ go get github.com/stretchr/testify
 go get github.com/stretchr/testify/mock
 go get github.com/stretchr/testify/require
 
+5. Библиотеки, которые очень упрощают написание тестов:
+5.1 httpexpect — для тестирования REST API,
+go get github.com/brianvoe/gofakeit/v6
+
+5.2 gofakeit — для генерации случайных данных разного формата (имена, имейлы, номера телефонов, URL и другое).
+go get github.com/gavv/httpexpect/v2
+
+ЗАПУСК СЕРВИСА:
+go run ./cmd/url-shortener/main.go --config=./config/local.yaml
+
+ЗАПУСК ТЕСТОВ:
+go test ./tests -count=1 -v
+
+Пример POST-запроса
+localhost:8082/?url=https://ya.ru&alias=yaru
