@@ -1,5 +1,5 @@
 REST API сервис — URL Shortener
-
+-----------------------------------------------------------------------------------------
 Для проекта используются библиотеки:
 
 go-chi/chi              — для обработки HTTP-запросов,
@@ -14,18 +14,24 @@ SQLite                  — для хранения данных, СУБД.
 Для успешной компиляции sqlite3 должен быть установлен компилятор gcc и установлен флаг:
 go env -w CGO_ENABLED=1
 
-Компилятор по адресу:
+Компилятор gcc по адресу:
 http://www.equation.com/servlet/equation.cmd?fa=fortran
 
 
 -----------------------------------------------------------------------------------------
 УСТАНОВКА ПАКЕТОВ:
-ilyakaznacheev/cleanenv (для конфигурирования):
+1. ilyakaznacheev/cleanenv (для конфигурирования):
 go get github.com/ilyakaznacheev/cleanenv
 
-SQLite:
+2. SQLite:
 go get github.com/mattn/go-sqlite3
 
-go-chi/chi (для работы с HTTP-сервером):
+3. go-chi/chi (для работы с HTTP-сервером):
 go get -u github.com/go-chi/chi/v5
 go get github.com/go-chi/render
+
+4. testify:
+go get github.com/stretchr/testify
+go get github.com/stretchr/testify/mock
+go get github.com/stretchr/testify/require
+
