@@ -108,6 +108,7 @@ func main() {
 
 		r.Post("/", save.New(log, storage))
 	})
+	log.Debug("Auth info", cfg.User, cfg.Password)
 
 	// Подключаем редирект-хендлер.
 	// Здесь формируем путь для обращения и именуем его параметр — {alias}.
