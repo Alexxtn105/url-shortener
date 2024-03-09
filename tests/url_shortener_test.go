@@ -74,8 +74,7 @@ func TestURLShortener_SaveRedirect(t *testing.T) {
 
 			e := httpexpect.Default(t, u.String())
 
-			// Save
-
+			// тесты на сохранение
 			resp := e.POST("/url").
 				WithJSON(save.Request{
 					URL:   tc.url,
@@ -87,7 +86,6 @@ func TestURLShortener_SaveRedirect(t *testing.T) {
 
 			//здесь проврека на ошибку
 			if tc.error != "" {
-				//resp.NotContainsKey("Request.URL")//проверим так
 				resp.NotContainsKey("alias")
 				resp.Value("error").String().IsEqual(tc.error)
 				return
@@ -99,7 +97,6 @@ func TestURLShortener_SaveRedirect(t *testing.T) {
 				resp.Value("alias").String().IsEqual(tc.alias)
 			} else {
 				resp.Value("alias").String().NotEmpty()
-
 				alias = resp.Value("alias").String().Raw()
 			}
 
