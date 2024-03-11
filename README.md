@@ -17,6 +17,10 @@ go env -w CGO_ENABLED=1
 Компилятор gcc по адресу:
 http://www.equation.com/servlet/equation.cmd?fa=fortran
 
+ЕСТЬ АЛЬТЕРНАТИВА SQLITE3:
+https://gitlab.com/cznic/sqlite
+Для его установки:
+go get modernc.org/sqlite
 
 -----------------------------------------------------------------------------------------
 УСТАНОВКА ПАКЕТОВ:
@@ -50,3 +54,5 @@ go test ./tests -count=1 -v
 
 Пример POST-запроса
 localhost:8082/?url=https://ya.ru&alias=yaru
+
+
