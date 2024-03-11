@@ -67,6 +67,24 @@ func main() {
 	log.Info("initializing server", slog.String("address", cfg.Address)) // Помимо сообщения выведем параметр с адресом
 	log.Debug("logger debug mode enabled")
 
+	// создаем объект клиента SSO
+	/*
+		ssoClient, err := ssogrpc.New(
+			context.Background(),
+			log,
+			cfg.Clients.SSO.Address,
+			cfg.Clients.SSO.Timeout,
+			cfg.Clients.SSO.RetriesCount,
+		)
+		if err != nil {
+			log.Error("failed to init sso client", sl.Err(err))
+			os.Exit(1)
+		}
+
+		// Как использовать? Например, можно сделать запрос к SSO-серверу, является ли текущий юзер админом
+		ssoClient.IsAdmin(context.Background(), UserID)
+	*/
+
 	//создаем объект Storage
 	storage, err := sqlite.NewStorage(cfg.StoragePath)
 	if err != nil {
