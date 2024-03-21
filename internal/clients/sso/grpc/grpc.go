@@ -29,20 +29,23 @@ func New(
 ) (*Client, error) {
 	const op = "grpc.New"
 
+	// опции для ретраев
 	retryOpts := []grpcretry.CallOption{
 		grpcretry.WithCodes(codes.NotFound, codes.Aborted, codes.DeadlineExceeded), // указываем, какие коды нужно ретраить
 		grpcretry.WithMax(uint(retriesCount)),                                      //количество ретраев
 		grpcretry.WithPerRetryTimeout(timeout),                                     //таймаут ретрая
 	}
-	// Опции для интерцептора gprclog
+
+	// Опции для интерцептора gprclog (логирование запросов и ответов)
 	logOpts := []grpclog.Option{
 		grpclog.WithLogOnEvents(grpclog.PayloadReceived, grpclog.PayloadSent),
 	}
 
 	// Создаём соединение с gRPC-сервером SSO для клиента
+	// по-хорошему здесь нужно создавать защищенное соединение, здесь будет insecure
 	cc, err := grpc.DialContext(ctx, addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithChainUnaryInterceptor( //обертка для двух интерсепторов (создаем цепочку интерцепторов, чтобы все интерцепторы вызывались по очереди)
+		grpc.WithChainUnaryInterceptor( //обертка для двух следующих интерсепторов (создаем цепочку интерцепторов, чтобы все интерцепторы вызывались по очереди)
 			// этот интерцептор будет тело каждого запроса и ответа,
 			grpclog.UnaryClientInterceptor(InterceptorLogger(log), logOpts...),
 			// этот интерцептор будет делать ретраи в случае неудачных запросов
@@ -68,7 +71,7 @@ func New(
 
 // InterceptorLogger adapts slog logger to interceptor logger.
 // This code is simple enough to be copied and not imported.
-// Копипаст из gRPC middleware
+// Копипаст из gRPC middleware, для логирования запросов и ответов.
 func InterceptorLogger(l *slog.Logger) grpclog.Logger {
 	return grpclog.LoggerFunc(func(ctx context.Context, lvl grpclog.Level, msg string, fields ...any) {
 		l.Log(ctx, slog.Level(lvl), msg, fields...)
