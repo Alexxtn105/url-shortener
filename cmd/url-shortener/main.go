@@ -124,6 +124,7 @@ func main() {
 			// то можете добавить остальные пары по аналогии.
 		}))
 
+		//	r.Post("/", save.New(log, storage))
 		r.Post("/", save.New(log, storage))
 	})
 	log.Debug("Auth info", cfg.User, cfg.Password)
