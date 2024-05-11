@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/go-chi/cors"
 	"net/http"
 	"os"
 	"os/signal"
@@ -99,6 +100,20 @@ func main() {
 	//создаем объект роутера
 	router := chi.NewRouter()
 
+	// Настраиваем CORS (предварителльно скачиваем пакет: go get github.com/go-chi/cors)
+	// Дополнительная ссылка: https://developer.github.com/v3/#cross-origin-resource-sharing
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{"http://localhost:3000"}, // Use this to allow specific origin hosts
+		//AllowedOrigins: []string{"https://*", "http://*"}, // пока что разрешаем все
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
+
+	//--------------------------------------
 	router.Use(middleware.RequestID) // Добавляет request_id в каждый запрос, для трейсинга
 	router.Use(middleware.Logger)    // Логирование всех запросов. Желательно написать собственный
 	router.Use(mwLogger.New(log))

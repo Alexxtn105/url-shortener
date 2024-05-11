@@ -33,7 +33,8 @@ go get github.com/mattn/go-sqlite3
 3. go-chi/chi (для работы с HTTP-сервером):
 go get -u github.com/go-chi/chi/v5
 go get github.com/go-chi/render
-
+go get github.com/go-chi/cors
+ 
 4. testify:
 go get github.com/stretchr/testify
 go get github.com/stretchr/testify/mock
@@ -49,6 +50,9 @@ go get github.com/gavv/httpexpect/v2
 -----------------------------------------------------------------------------------------
 ЗАПУСК СЕРВИСА:
 go run ./cmd/url-shortener/main.go --config=./config/local.yaml
+
+Для запуска (в bash, с использованием переменной окружения):
+CONFIG_PATH="./config/local.yaml" go run  "./cmd/url-shortener/main.go"
 
 ЗАПУСК ТЕСТОВ:
 go test ./tests -count=1 -v
