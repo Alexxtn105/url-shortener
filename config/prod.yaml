@@ -1,0 +1,9 @@
+# config/prod.yaml
+
+env: "prod"
+storage_path: "./storage.db"
+http_server:
+  address: "0.0.0.0:8082" # 0.0.0.0 вместо localhost, чтобы работали внешние запросы
+  timeout: 4s
+  idle_timeout: 30s
+  user: "my_user" # указываем только user, но не password. О пароле поговорим ниже

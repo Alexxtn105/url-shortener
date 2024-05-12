@@ -1,0 +1,84 @@
+# .github/workflows/deploy.yaml
+
+# В такой конфигурации workflow будет запускаться только вручную.
+# Притом нужно будет указать git-тег, по которому будем деплоить сервис.
+# Можно было бы сделать намного проще — деплоить при каждом пуше/мерже
+# в основную ветку, но мне такой вариант не нравится.
+# Хочу сам контролировать это дело.
+
+name: Deploy App # Даем осмысленное имя. Название процесса workflow, которое будет отображаться в разделе Actions
+
+on:     # условия, при которых будет запускаться workflow
+  workflow_dispatch: # Ручной запуск
+    inputs: # Что нужно ввести вручную при запуске
+      tag: # Мы будем указывать тег для деплоя
+        description: 'Tag to deploy'
+        required: true
+
+jobs:   # действия, которые необходимо проделать
+  deploy:
+    runs-on: ubuntu-latest # ОС для runner
+    env: # Вводим переменные, которые будем использовать далее
+      HOST: root@<87.242.85.156> # логин / хост сервера, на которые деплоим
+      DEPLOY_DIRECTORY: /root/apps/url-shortener # папка проекта на сервере
+      CONFIG_PATH: /root/apps/url-shortener/config/prod.yaml # конфиг сервиса на сервере
+      ENV_FILE_PATH: /root/apps/url-shortener/config.env # env-файл на сервере
+  steps: # В steps перечислены действия, которые будут выполняться по порядку. Каждый шаг состоит из следующих параметров (некоторые опциональны)
+    # 1. Клонируем репозиторий в runner
+    - name: Checkout repository   # имя шага, будет выводиться в процессе выполнения workflow, пишем что-то осмысленное
+      uses: actions/checkout@v2   # использование внешней команды. Например, uses: actions/setup-go@v2 указывает, что шаг будет использовать действие setup-go, доступное в репозитории actions на GitHub
+      with:                       # параметры, которые передаются в действие
+        ref: ${{ github.event.inputs.tag }}
+    # 2. Проверяем, существует ли указанный тег
+    - name: Check if tag exists
+      run: |                      # выполняемая команда
+        git fetch --all --tags
+        if ! git tag | grep -q "^${{ github.event.inputs.tag }}$"; then
+          echo "error: Tag '${{ github.event.inputs.tag }}' not found"
+          exit 1
+        fi
+    # 3. Устанавливаем определенную версию Go
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.20.2
+    # 4. Скачиваем зависимости и собираем приложение
+    - name: Build app
+      run: |
+        go mod download
+        go build -o url-shortener ./cmd/url-shortener
+    # 5. Загружаем файлы из репозитория на виртуальную машину
+    - name: Deploy to VM
+      run: |
+        sudo apt-get install -y ssh rsync
+        echo "$DEPLOY_SSH_KEY" > deploy_key.pem
+        chmod 600 deploy_key.pem
+        ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "mkdir -p ${{ env.DEPLOY_DIRECTORY }}"
+        rsync -avz -e 'ssh -i deploy_key.pem -o StrictHostKeyChecking=no' --exclude='.git' ./ ${{ env.HOST }}:${{ env.DEPLOY_DIRECTORY }}
+      env:      # определяет переменные окружения для этого шага
+        DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+    # 6. Удаляем старый файл сервиса systemd на сервере
+    - name: Remove old systemd service file
+      run: |
+        ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "rm -f /etc/systemd/system/url-shortener.service"
+    # 7. Выводим содержимое рабочего каталога на runner
+    - name: List workspace contents
+      run: |
+        echo "Listing deployment folder contents:"
+        ls -la ${{ github.workspace }}/deployment
+    # 8. Создаем файл окружения на сервере
+    - name: Create environment file on server
+      run: |
+        ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "touch ${{ env.ENV_FILE_PATH }}"
+        ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "chmod 600 ${{ env.ENV_FILE_PATH }}"
+        ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "echo 'CONFIG_PATH=${{ env.CONFIG_PATH }}' > ${{ env.ENV_FILE_PATH }}"
+        ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "echo 'HTTP_SERVER_PASSWORD=${{ secrets.AUTH_PASS }}' >> ${{ env.ENV_FILE_PATH }}"
+    # 9. Копируем файл сервиса systemd на сервер
+    - name: Copy systemd service file
+      run: |
+        scp -i deploy_key.pem -o StrictHostKeyChecking=no ${{ github.workspace }}/deployment/url-shortener.service ${{ env.HOST }}:/tmp/url-shortener.service
+        ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "mv /tmp/url-shortener.service /etc/systemd/system/url-shortener.service"
+    # 10. Перезапускаем приложение на сервере
+    - name: Start application
+      run: |
+        ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "systemctl daemon-reload && systemctl restart url-shortener.service"
