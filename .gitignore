@@ -3,3 +3,4 @@ Dockerfile
 .dockerignore
 compose.yaml
 README.Docker.md
+url-shortener.exe
