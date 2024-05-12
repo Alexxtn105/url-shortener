@@ -23,8 +23,7 @@ jobs: # действия, которые необходимо проделать
       DEPLOY_DIRECTORY: /var/www/url-shortener # папка проекта на сервере
       CONFIG_PATH: /var/www/url-shortener/config/prod.yaml # конфиг сервиса на сервере
       ENV_FILE_PATH: /var/www/url-shortener/config.env # env-файл на сервере
-  steps: # В steps перечислены действия, которые будут выполняться по порядку. Каждый шаг состоит из следующих параметров (некоторые опциональны)
-    # 1. Клонируем репозиторий в runner
+  steps:
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
