@@ -6,8 +6,8 @@
 # в основную ветку, но мне такой вариант не нравится.
 # Хочу сам контролировать это дело.
 
-name: Deploy App # Даем осмысленное имя. Название процесса workflow, которое будет отображаться в разделе Actions
-
+# Даем осмысленное имя. Название процесса workflow, которое будет отображаться в разделе Actions
+name: Deploy App
 on:     # условия, при которых будет запускаться workflow
   workflow_dispatch: # Ручной запуск
     inputs: # Что нужно ввести вручную при запуске
@@ -19,7 +19,7 @@ jobs:   # действия, которые необходимо проделат
   deploy:
     runs-on: ubuntu-latest # ОС для runner
     env: # Вводим переменные, которые будем использовать далее
-      HOST: alexxtn@<87.242.85.156> # логин / хост сервера, на которые деплоим
+      HOST: root@<87.242.85.156> # логин / хост сервера, на которые деплоим
       DEPLOY_DIRECTORY: /root/apps/url-shortener # папка проекта на сервере
       CONFIG_PATH: /root/apps/url-shortener/config/prod.yaml # конфиг сервиса на сервере
       ENV_FILE_PATH: /root/apps/url-shortener/config.env # env-файл на сервере
