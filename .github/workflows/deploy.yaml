@@ -11,7 +11,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      HOST: root@5.189.237.115
+      HOST: alexxtn@87.242.85.156
       DEPLOY_DIRECTORY: /var/www/url-shortener
       CONFIG_PATH: /var/www/url-shortener/config/prod.yaml
       ENV_FILE_PATH: /var/www/url-shortener/config.env
