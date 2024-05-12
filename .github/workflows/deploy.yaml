@@ -19,10 +19,10 @@ jobs: # действия, которые необходимо проделать
   deploy:
     runs-on: ubuntu-latest # ОС для runner
     env: # Вводим переменные, которые будем использовать далее
-      HOST: root@87.242.85.156 # логин / хост сервера, на которые деплоим
-      DEPLOY_DIRECTORY: /root/apps/url-shortener # папка проекта на сервере
-      CONFIG_PATH: /root/apps/url-shortener/config/prod.yaml # конфиг сервиса на сервере
-      ENV_FILE_PATH: /root/apps/url-shortener/config.env # env-файл на сервере
+      HOST: alexxtn@87.242.85.156 # логин / хост сервера, на которые деплоим
+      DEPLOY_DIRECTORY: /var/www/url-shortener # папка проекта на сервере
+      CONFIG_PATH: /var/www/url-shortener/config/prod.yaml # конфиг сервиса на сервере
+      ENV_FILE_PATH: /var/www/url-shortener/config.env # env-файл на сервере
   steps: # В steps перечислены действия, которые будут выполняться по порядку. Каждый шаг состоит из следующих параметров (некоторые опциональны)
     # 1. Клонируем репозиторий в runner
     - name: Checkout repository
@@ -41,7 +41,7 @@ jobs: # действия, которые необходимо проделать
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.20.2
+        go-version: 1.21.6
     # 4. Скачиваем зависимости и собираем приложение
     - name: Build app
       run: |
