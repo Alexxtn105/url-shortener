@@ -8,14 +8,14 @@
 
 # Даем осмысленное имя. Название процесса workflow, которое будет отображаться в разделе Actions
 name: Deploy App
-on:     # условия, при которых будет запускаться workflow
+on: # условия, при которых будет запускаться workflow
   workflow_dispatch: # Ручной запуск
     inputs: # Что нужно ввести вручную при запуске
       tag: # Мы будем указывать тег для деплоя
         description: 'Tag to deploy'
         required: true
 
-jobs:   # действия, которые необходимо проделать
+jobs: # действия, которые необходимо проделать
   deploy:
     runs-on: ubuntu-latest # ОС для runner
     env: # Вводим переменные, которые будем использовать далее
@@ -25,9 +25,9 @@ jobs:   # действия, которые необходимо проделат
       ENV_FILE_PATH: /root/apps/url-shortener/config.env # env-файл на сервере
   steps: # В steps перечислены действия, которые будут выполняться по порядку. Каждый шаг состоит из следующих параметров (некоторые опциональны)
     # 1. Клонируем репозиторий в runner
-    - name: Checkout repository   # имя шага, будет выводиться в процессе выполнения workflow, пишем что-то осмысленное
-      uses: actions/checkout@v2   # использование внешней команды. Например, uses: actions/setup-go@v2 указывает, что шаг будет использовать действие setup-go, доступное в репозитории actions на GitHub
-      with:                       # параметры, которые передаются в действие
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
         ref: ${{ github.event.inputs.tag }}
     # 2. Проверяем, существует ли указанный тег
     - name: Check if tag exists
@@ -55,7 +55,7 @@ jobs:   # действия, которые необходимо проделат
         chmod 600 deploy_key.pem
         ssh -i deploy_key.pem -o StrictHostKeyChecking=no ${{ env.HOST }} "mkdir -p ${{ env.DEPLOY_DIRECTORY }}"
         rsync -avz -e 'ssh -i deploy_key.pem -o StrictHostKeyChecking=no' --exclude='.git' ./ ${{ env.HOST }}:${{ env.DEPLOY_DIRECTORY }}
-      env:      # определяет переменные окружения для этого шага
+      env: # определяет переменные окружения для этого шага
         DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
     # 6. Удаляем старый файл сервиса systemd на сервере
     - name: Remove old systemd service file
