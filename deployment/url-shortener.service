@@ -3,7 +3,7 @@ Description=Url Shortener
 After=network.target
 
 [Service]
-User=root
+User=alexxtn
 WorkingDirectory=/var/www/url-shortener
 ExecStart=/var/www/url-shortener/url-shortener
 Restart=always
