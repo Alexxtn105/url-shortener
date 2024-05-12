@@ -100,7 +100,7 @@ func main() {
 	//создаем объект роутера
 	router := chi.NewRouter()
 
-	// Настраиваем CORS (предварителльно скачиваем пакет: go get github.com/go-chi/cors)
+	// Настраиваем CORS (предварительно скачиваем пакет: go get github.com/go-chi/cors)
 	// Дополнительная ссылка: https://developer.github.com/v3/#cross-origin-resource-sharing
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins: []string{"http://localhost:3000"}, // Use this to allow specific origin hosts

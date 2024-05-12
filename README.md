@@ -48,6 +48,9 @@ go get github.com/brianvoe/gofakeit/v6
 go get github.com/gavv/httpexpect/v2
 
 -----------------------------------------------------------------------------------------
+ПРИМЕР РУЧНОЙ УСТАНОВКИ ТЕГА
+git tag v0.0.1 && git push origin v0.0.1
+
 ЗАПУСК СЕРВИСА:
 go run ./cmd/url-shortener/main.go --config=./config/local.yaml
 
