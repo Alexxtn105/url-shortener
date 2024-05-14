@@ -104,8 +104,8 @@ func main() {
 	// Дополнительная ссылка: https://developer.github.com/v3/#cross-origin-resource-sharing
 	router.Use(cors.Handler(cors.Options{
 		//AllowedOrigins: []string{"http://localhost:3000"}, // Use this to allow specific origin hosts
-		AllowedOrigins: []string{"https://http://87.242.85.156:*", "http://http://87.242.85.156:*"}, // пока что разрешаем все
-		//AllowedOrigins: []string{"https://*", "http://*"}, // пока что разрешаем все
+		//AllowedOrigins: []string{"https://http://87.242.85.156:*", "http://http://87.242.85.156:*"}, // пока что разрешаем все
+		AllowedOrigins: []string{"https://*", "http://*"}, // пока что разрешаем все
 		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
