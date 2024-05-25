@@ -2,12 +2,15 @@ package jwt
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type myClaims struct {
-	UID int64
+	UID   int64
+	Email string
+	Exp   time.Time
 }
 
 func Parse(tokenStr string, appSecret string) (*myClaims, error) {
@@ -29,7 +32,9 @@ func Parse(tokenStr string, appSecret string) (*myClaims, error) {
 	}
 
 	clms := myClaims{
-		UID: int64(claims["uid"].(float64)),
+		UID:   int64(claims["uid"].(float64)),
+		Email: claims["email"].(string),
+		Exp:   time.Unix(int64(claims["exp"].(float64)), int64(0)),
 	}
 
 	return &clms, nil

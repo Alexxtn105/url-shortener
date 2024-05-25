@@ -11,6 +11,7 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+	"url-shortener/internal/lib/jwt"
 
 	"log/slog"
 
@@ -80,8 +81,24 @@ func main() {
 		log.Error("failed to init sso client", sl.Err(err))
 		os.Exit(1)
 	} else {
-		log.Info("sso grpc connected", slog.String("address", cfg.Clients.SSO.Address)) // Помимо сообщения выведем параметр с адресом
+		log.Info("sso grpc connected", slog.String("address", cfg.Clients.SSO.Address)) // адрес и порт сервиса SSO
 	}
+
+	//-------------------МОИ ТЕСТЫ ЛОГИНА МОЖНО ЗАКОММЕНТИТЬ------------------------------------------
+	fmt.Println("---------МОИ ТЕСТЫ ЛОГИНА-------------------")
+	token, err := ssoClient.Login(context.Background(), "test@test.ru", "test", 1)
+	if err != nil {
+		log.Warn("invalid email or password", sl.Err(err))
+
+	} else {
+		claims, err := jwt.Parse(token, cfg.AppSecret)
+		if err != nil {
+			log.Warn("failed to parse token", sl.Err(err))
+		} else {
+			fmt.Println("Logged UserID:", claims.UID, ", email:", claims.Email, ", expiration date: ", claims.Exp)
+		}
+	}
+	fmt.Println("----------------------------")
 
 	//-------------------------------------------------------------
 	// ПРИМЕР запроса к SSO-серверу, является ли текущий юзер админом:
@@ -140,7 +157,7 @@ func main() {
 
 	// Все пути этого роутера будут начинаться с префикса `/url`
 	router.Route("/url", func(r chi.Router) {
-		// Подключаем авторизацию
+		// Подключаем базовую аутентификацияю
 		r.Use(middleware.BasicAuth("url-shortener", map[string]string{
 			// Передаем в middleware креды
 			cfg.HTTPServer.User: cfg.HTTPServer.Password,

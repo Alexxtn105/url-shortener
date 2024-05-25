@@ -9,6 +9,7 @@ import (
 	ssov1 "github.com/Alexxtn105/protos/gen/go/sso"
 	grpclog "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	grpcretry "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/retry"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -58,7 +59,7 @@ func New(
 	}
 
 	// создаем gRPC-клиент SSO/Auth
-	//  Она создаёт gRPC клиент для нужного сервиса,
+	// Она создаёт gRPC клиент для нужного сервиса,
 	// в нашем случае — это SSO, а конкретно — Auth.
 	// Напомню, что мы внутри proto-файла сделали группировку методов
 	// на отдельные сервисы: Auth и в будущем Permissions, UserInfo и т.п.
@@ -70,8 +71,8 @@ func New(
 
 }
 
-// InterceptorLogger adapts slog logger to interceptor logger.
-// This code is simple enough to be copied and not imported.
+// InterceptorLogger адаптирует логгер slog к интерцептор-логгеру
+// Достаточно просто скопировать этот код вместо импорта.
 // Копипаст из gRPC middleware, для логирования запросов и ответов.
 func InterceptorLogger(l *slog.Logger) grpclog.Logger {
 	return grpclog.LoggerFunc(func(ctx context.Context, lvl grpclog.Level, msg string, fields ...any) {
@@ -79,7 +80,11 @@ func InterceptorLogger(l *slog.Logger) grpclog.Logger {
 	})
 }
 
-func (c *Client) IsAdmin(ctx context.Context, userID int64) (bool, error) {
+// IsAdmin проверяет, является ли пользователь администратором
+func (c *Client) IsAdmin(
+	ctx context.Context, // контекст приложения
+	userID int64, //ИД пользователя
+) (bool, error) {
 	const op = "grpc.IsAdmin"
 
 	// основная часть
@@ -92,4 +97,39 @@ func (c *Client) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	}
 
 	return resp.IsAdmin, nil
+}
+
+// Login логин пользователя
+func (c *Client) Login(ctx context.Context, email string, password string, app_Id int32) (string, error) {
+	const op = "grpc.Login"
+
+	// основная часть
+	resp, err := c.api.Login(ctx, &ssov1.LoginRequest{
+		Email:    email,
+		Password: password,
+		AppId:    app_Id,
+	})
+
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
+	return resp.Token, nil
+}
+
+// Register регистрация нового пользователя
+func (c *Client) Register(ctx context.Context, email string, password string) (int64, error) {
+	const op = "grpc.Register"
+
+	// основная часть
+	resp, err := c.api.Register(ctx, &ssov1.RegisterRequest{
+		Email:    email,
+		Password: password,
+	})
+
+	if err != nil {
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return resp.UserId, nil
 }
