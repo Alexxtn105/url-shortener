@@ -42,7 +42,6 @@ func main() {
 	//получаем объект конфига
 	//cfg := config.MustLoad()			// с использованием переменной окружения CONFIG_PATH
 	cfg := config.MustLoadFetchFlag() // ...или с использованием параметра командной строки
-	//	fmt.Printf("Конфигурация загружена успешно: %s\n", cfg)
 	fmt.Println("Конфигурация загружена успешно")
 
 	// Получаем логгер.
@@ -60,7 +59,6 @@ func main() {
 	// К примеру, если мы установим уровень Info, то Debug-сообщения не увидим.
 	// Поэтому для локальной разработки и Dev-окружения лучше использовать уровень Debug,
 	// а для продакшена — Info.
-
 	//создаем логгер
 	log := setupLogger(cfg.Env)
 	//добавим параметр env с помощью метода log.With
@@ -81,18 +79,19 @@ func main() {
 	if err != nil {
 		log.Error("failed to init sso client", sl.Err(err))
 		os.Exit(1)
+	} else {
+		log.Info("sso grpc connected", slog.String("address", cfg.Clients.SSO.Address)) // Помимо сообщения выведем параметр с адресом
 	}
 
-	// Как использовать? Например, можно сделать запрос к SSO-серверу, является ли текущий юзер админом
-	// Например:
+	//-------------------------------------------------------------
+	// ПРИМЕР запроса к SSO-серверу, является ли текущий юзер админом:
 	UserID := 63
 	isAdmin, err := ssoClient.IsAdmin(context.Background(), int64(UserID))
 	if err != nil {
 		log.Info("failed to get user isAdmin", sl.Err(err))
 		isAdmin = false
 	}
-
-	fmt.Println("UserID=", UserID, "IsAdmin=", isAdmin)
+	fmt.Println("UserID =", UserID, ", IsAdmin =", isAdmin)
 	//-------------------------------------------------------------
 
 	//создаем объект Storage

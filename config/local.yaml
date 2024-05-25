@@ -9,7 +9,7 @@ http_server: #конфигурация нашего http-сервера
   idle_timeout: 30s
   user: "my_user"
   password: "my_pass"
-clients: #конфигурация клиента gRPC
+clients: #конфигурация клиента sso (gRPC)
   sso:
     address: "localhost:44044"
     timeout: 10s

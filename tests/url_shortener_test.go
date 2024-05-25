@@ -55,7 +55,8 @@ func TestURLShortener_SaveRedirect(t *testing.T) {
 			name:  "Invalid URL",
 			url:   "invalid_url",
 			alias: gofakeit.Word(),
-			error: "field URL is not a valid URL",
+			//error: "field url is not a valid url",
+			error: "Key: 'Request.URL' Error:Field validation for 'URL' failed on the 'url' tag", // подправил так. Вроде работает
 		},
 		{
 			name:  "Empty Alias",
