@@ -53,6 +53,7 @@ func New(
 		))
 
 	if err != nil {
+
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -81,6 +82,7 @@ func InterceptorLogger(l *slog.Logger) grpclog.Logger {
 func (c *Client) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	const op = "grpc.IsAdmin"
 
+	// основная часть
 	resp, err := c.api.IsAdmin(ctx, &ssov1.IsAdminRequest{
 		UserId: userID,
 	})

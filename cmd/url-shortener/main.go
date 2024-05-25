@@ -24,6 +24,7 @@ import (
 	"url-shortener/internal/http-server/handlers/url/save"
 	mwLogger "url-shortener/internal/http-server/middleware/logger"
 
+	ssogrpc "url-shortener/internal/clients/sso/grpc"
 	//"url-shortener/internal/lib/logger/handlers/slogpretty"
 	"url-shortener/internal/lib/logger/sl"
 	"url-shortener/internal/storage/sqlite"
@@ -68,23 +69,31 @@ func main() {
 	log.Info("initializing server", slog.String("address", cfg.Address)) // Помимо сообщения выведем параметр с адресом
 	log.Debug("logger debug mode enabled")
 
-	// создаем объект клиента SSO
-	/*
-		ssoClient, err := ssogrpc.New(
-			context.Background(),
-			log,
-			cfg.Clients.SSO.Address,
-			cfg.Clients.SSO.Timeout,
-			cfg.Clients.SSO.RetriesCount,
-		)
-		if err != nil {
-			log.Error("failed to init sso client", sl.Err(err))
-			os.Exit(1)
-		}
+	//---------------------------------------------------------------------
+	// создаем объект клиента gRPC-сервиса SSO
+	ssoClient, err := ssogrpc.New(
+		context.Background(),
+		log,
+		cfg.Clients.SSO.Address,
+		cfg.Clients.SSO.Timeout,
+		cfg.Clients.SSO.RetriesCount,
+	)
+	if err != nil {
+		log.Error("failed to init sso client", sl.Err(err))
+		os.Exit(1)
+	}
 
-		// Как использовать? Например, можно сделать запрос к SSO-серверу, является ли текущий юзер админом
-		ssoClient.IsAdmin(context.Background(), UserID)
-	*/
+	// Как использовать? Например, можно сделать запрос к SSO-серверу, является ли текущий юзер админом
+	// Например:
+	UserID := 63
+	isAdmin, err := ssoClient.IsAdmin(context.Background(), int64(UserID))
+	if err != nil {
+		log.Info("failed to get user isAdmin", sl.Err(err))
+		isAdmin = false
+	}
+
+	fmt.Println("UserID=", UserID, "IsAdmin=", isAdmin)
+	//-------------------------------------------------------------
 
 	//создаем объект Storage
 	storage, err := sqlite.NewStorage(cfg.StoragePath)

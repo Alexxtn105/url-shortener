@@ -23,7 +23,7 @@ type Config struct {
 	StoragePath string `yaml:"storage_path" env-required:"true"`
 	HTTPServer  `yaml:"http_server"`
 	Clients     ClientConfig `yaml:"clients"`
-	appSecret   string       `yaml:"app_secret" env-required:"true" env:"APP_SECRET"` // секретный ключ, с помощью которого приложение будет проверять JWT-токены
+	AppSecret   string       `yaml:"app_secret" env-required:"true" env:"APP_SECRET"` // секретный ключ, с помощью которого приложение будет проверять JWT-токены
 }
 
 type HTTPServer struct {
@@ -38,7 +38,7 @@ type Client struct {
 	Address      string        `yaml:"address"`
 	Timeout      time.Duration `yaml:"timeout"`
 	RetriesCount int           `yaml:"retriesCount"`
-	//Insecure bool `yaml:"insecure"`  //может пригоидиться в будущем. Можно запускать приложение в двух режимах
+	//Insecure bool `yaml:"insecure"`  //может пригодиться в будущем. Можно запускать приложение в двух режимах
 }
 
 type ClientConfig struct {

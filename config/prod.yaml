@@ -7,3 +7,4 @@ http_server:
   timeout: 4s
   idle_timeout: 30s
   user: "my_user" # указываем только user, но не password. О пароле поговорим ниже
+  app_secret: "test-secret"
