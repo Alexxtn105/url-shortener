@@ -50,12 +50,10 @@ func TestURLShortener_SaveRedirect(t *testing.T) {
 			url:   gofakeit.URL(),
 			alias: gofakeit.Word() + gofakeit.Word(),
 		},
-		// ЭТОТ ТЕСТ ВЫДАЕТ FAIL. может так и задумано? Пока закомментил, без него все тесты проходят
 		{
 			name:  "Invalid URL",
 			url:   "invalid_url",
 			alias: gofakeit.Word(),
-			//error: "field url is not a valid url",
 			error: "Key: 'Request.URL' Error:Field validation for 'URL' failed on the 'url' tag", // подправил так. Вроде работает
 		},
 		{
