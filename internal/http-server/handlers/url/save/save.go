@@ -44,7 +44,7 @@ type URLSaver interface {
 // Mockery generation fo SaveURL:
 // ./internal/http-server/handlers/url/save/save.go
 
-// Конструктор обработчика запросов
+// New Конструктор обработчика запросов
 func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.url.save.New"
