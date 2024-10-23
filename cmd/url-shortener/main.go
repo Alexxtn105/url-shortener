@@ -40,13 +40,14 @@ const (
 // для запуска (в bash):
 // CONFIG_PATH="./config/local.yaml" go run  "./cmd/url-shortener/main.go"
 func main() {
-	//получаем объект конфига
-	//cfg := config.MustLoad()			// с использованием переменной окружения CONFIG_PATH
+	//region Получаем объект конфига
 	cfg := config.MustLoadFetchFlag() // ...или с использованием параметра командной строки
+	//cfg := config.MustLoad()			// с использованием переменной окружения CONFIG_PATH
 	fmt.Println("Конфигурация загружена успешно")
+	//endregion
+	//region Получаем логгер
 
-	// Получаем логгер.
-	// Будем использовать slog, потому что это очень гибкий пакет,
+	/* Будем использовать slog, потому что это очень гибкий пакет,
 	// и конкретная реализация может быть разной.
 	// Мы можем написать собственный хендлер (обработчик логов, который определяет, что происходит с записями),
 	// обернуть в него привычный логгер (например, zap или logrus)
@@ -59,7 +60,9 @@ func main() {
 	// это минимальный уровень сообщений, которые будут выводиться.
 	// К примеру, если мы установим уровень Info, то Debug-сообщения не увидим.
 	// Поэтому для локальной разработки и Dev-окружения лучше использовать уровень Debug,
-	// а для продакшена — Info.
+	а для продакшена — Info.
+	*/
+
 	//создаем логгер
 	log := setupLogger(cfg.Env)
 	//добавим параметр env с помощью метода log.With
@@ -67,9 +70,8 @@ func main() {
 
 	log.Info("initializing server", slog.String("address", cfg.Address)) // Помимо сообщения выведем параметр с адресом
 	log.Debug("logger debug mode enabled")
-
-	//---------------------------------------------------------------------
-	// создаем объект клиента gRPC-сервиса SSO
+	//endregion
+	//region Создаем объект клиента gRPC-сервиса SSO
 	ssoClient, err := ssogrpc.New(
 		context.Background(),
 		log,
@@ -83,8 +85,8 @@ func main() {
 	} else {
 		log.Info("sso grpc connected", slog.String("address", cfg.Clients.SSO.Address)) // адрес и порт сервиса SSO
 	}
-
-	//-------------------МОИ ТЕСТЫ ЛОГИНА МОЖНО ЗАКОММЕНТИТЬ------------------------------------------
+	//endregion
+	//region МОИ ТЕСТЫ ЛОГИНА (МОЖНО ЗАКОММЕНТИТЬ)
 	fmt.Println("---------МОИ ТЕСТЫ ЛОГИНА-------------------")
 	token, err := ssoClient.Login(context.Background(), "test@test.ru", "test", 1)
 	if err != nil {
@@ -99,9 +101,8 @@ func main() {
 		}
 	}
 	fmt.Println("----------------------------")
-
-	//-------------------------------------------------------------
-	// ПРИМЕР запроса к SSO-серверу, является ли текущий юзер админом:
+	//endregion
+	//region ПРИМЕР запроса к SSO-серверу, является ли текущий юзер админом:
 	UserID := 63
 	isAdmin, err := ssoClient.IsAdmin(context.Background(), int64(UserID))
 	if err != nil {
@@ -109,9 +110,8 @@ func main() {
 		isAdmin = false
 	}
 	fmt.Println("UserID =", UserID, ", IsAdmin =", isAdmin)
-	//-------------------------------------------------------------
-
-	//создаем объект Storage
+	//endregion
+	//region Создаем объект Storage
 	storage, err := sqlite.NewStorage(cfg.StoragePath)
 	if err != nil {
 		log.Error("failed to initialize storage", sl.Err(err))
@@ -119,10 +119,11 @@ func main() {
 
 	log.Info("storage created")
 	fmt.Println(storage)
+	//endregion
 
-	//----------------------создаем http-сервер
+	//region Создаем http-сервер
 
-	//создаем объект роутера
+	//region Создаем роутер
 	router := chi.NewRouter()
 
 	// Настраиваем CORS (предварительно скачиваем пакет: go get github.com/go-chi/cors)
@@ -179,8 +180,9 @@ func main() {
 
 	//прикручиваем ремувер
 	router.Delete("/{alias}", remove.New(log, storage))
+	//endregion
 
-	// ЗАПУСК СЕРВЕРА
+	//region ЗАПУСК и ОСТАНОВКА СЕРВЕРА
 	log.Info("starting server", slog.String("address", cfg.Address))
 
 	done := make(chan os.Signal, 1)
@@ -220,6 +222,9 @@ func main() {
 	//...
 
 	log.Info("server stopped")
+	//endregion
+
+	//endregion
 }
 
 // setupLogger создает логгер в зависимости от окружения с разными параметрами — TextHandler / JSONHandler и уровень LevelDebug / LevelInfo
