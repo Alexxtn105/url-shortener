@@ -70,7 +70,7 @@ go get modernc.org/sqlite
 ```
 
 ## УСТАНОВКА ПАКЕТОВ:
-ilyakaznacheev/cleanenv (для конфигурирования):
+`ilyakaznacheev/cleanenv` (для конфигурирования):
 ```bash
 go get github.com/ilyakaznacheev/cleanenv
 ```
@@ -81,14 +81,14 @@ go get github.com/mattn/go-sqlite3
 ```
 
 
-Маршрутизатор go-chi/chi:
+Маршрутизатор `go-chi/chi`:
 ```bash
 go get -u github.com/go-chi/chi/v5
 go get github.com/go-chi/render
 go get github.com/go-chi/cors
 ```
 
-testify (моки):
+`testify` (моки):
 ```bash
 go get github.com/stretchr/testify
 go get github.com/stretchr/testify/mock
@@ -96,13 +96,13 @@ go get github.com/stretchr/testify/require
 ```
 
 Библиотеки, которые очень упрощают написание тестов:
-httpexpect — для тестирования REST API,
-```bash
-go get github.com/brianvoe/gofakeit/v6
-```
-
-gofakeit — для генерации случайных данных разного формата (имена, имейлы, номера телефонов, URL и другое).
+`httpexpect` — для тестирования REST API,
 ```bash
 go get github.com/gavv/httpexpect/v2
+```
+
+`gofakeit` — для генерации случайных данных разного формата (имена, email, номера телефонов, URL и другое).
+```bash
+go get github.com/brianvoe/gofakeit/v6
 ```
 -----------------------------------------------------------------------------------------
